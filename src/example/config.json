@@ -1,0 +1,8 @@
+{
+"dev_mac":"000ec6cb78c4",
+"server_host":"iom.iovyw.com",
+"server_port":1883,
+"keep_alive":30,
+"mqtt_name":"",
+"mqtt_passwd":""
+}
