@@ -1,6 +1,8 @@
 #include "lhog.h"
 
 char *conf_path = NULL;
+int daemo = 0;
+int debug = 0;
 
 static int command_line_handle(int argc, char **argv)
 {
@@ -9,13 +11,18 @@ static int command_line_handle(int argc, char **argv)
 	if(argc < 2){
 		return -1;
 	}
-	while((ch=getopt(argc,argv,"c:")) != -1){
+	while((ch=getopt(argc,argv,"c:bd")) != -1){
 		switch(ch){
 		case 'c':
 			conf_path = optarg;
 			LOGD("configure file is %s \r\n",conf_path);
 			ret = 0;
 			break;
+        case 'b':
+            daemo = 1;
+            break;
+        case 'd':
+            debug = 1;
 		default:
 			ret = -1;
 			break;
@@ -32,14 +39,27 @@ void usage(char *pname){
 int main(int argc ,char *argv[])
 {
 	int ret;
-	//test_local_cmd();
+    
 	uloop_init();
 	signal(SIGPIPE, SIG_IGN);
+    signal(SIGTTOU, SIG_IGN);
+    signal(SIGTTIN, SIG_IGN);
+    signal(SIGTSTP, SIG_IGN);
+    signal(SIGHUP, SIG_IGN);
+
 	ret = command_line_handle(argc,argv);
+
 	if(ret < 0 ){
 		usage(argv[0]);
 	}
-	set_log_debug(true);
+    if(debug){
+        set_log_debug(true);
+    }else{
+        set_log_debug(false);
+    }
+	if(daemo){
+        ret = daemon(0,0);
+    }
 	LOGD("init config......\n");
 	init_mqtt_config(conf_path);
 	if(ret < 0 ){
@@ -51,5 +71,4 @@ int main(int argc ,char *argv[])
 	uloop_done();
 	deinit_mqtt_config();
 	return 0;
-
 }
