@@ -23,6 +23,7 @@ static int command_line_handle(int argc, char **argv)
             break;
         case 'd':
             debug = 1;
+			break;
 		default:
 			ret = -1;
 			break;
